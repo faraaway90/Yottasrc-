@@ -32,17 +32,19 @@ except FileNotFoundError:
     logger.error("config.json not found!")
     exit(1)
 
-BOT_TOKEN = os.getenv("BOT_TOKEN") or config["bot_token"]
+BOT_TOKEN = config["bot_token"]
 ADMIN_USERNAME = config["admin"]
+ADMIN_ID = config["admin_id"]
 MIN_WITHDRAW = config["min_withdraw"]
 TASKS = config["tasks"]
 DAILY_LIMIT = config["daily_limit"]
 BONUS_REFERRAL = config["referral_bonus"]
+CURRENCY = config["currency"]
 
 # Data storage
 users = {}
 withdrawals = []
-user_tasks = {}  # Store active tasks with timestamps
+user_tasks = {}
 
 # === FLASK SETUP ===
 app = Flask(__name__)
@@ -104,12 +106,12 @@ def reset_daily_tasks():
 def get_main_keyboard():
     """Get the main menu keyboard"""
     return [
-        [InlineKeyboardButton("🌐 Visit Website (25s)", callback_data="visit")],
-        [InlineKeyboardButton("👍 Like Video (10s)", callback_data="like")],
-        [InlineKeyboardButton("💬 Comment (10s)", callback_data="comment")],
-        [InlineKeyboardButton("🔔 Subscribe (10s)", callback_data="subscribe")],
-        [InlineKeyboardButton("⏱ Watch 3 Min Video (180s)", callback_data="watch")],
-        [InlineKeyboardButton("📺 Watch Live (600s)", callback_data="live")],
+        [InlineKeyboardButton("📰 Visit Article (0.10₽)", callback_data="visit")],
+        [InlineKeyboardButton("👍 Like Video (0.03₽)", callback_data="like")],
+        [InlineKeyboardButton("💬 Comment on Video (0.05₽)", callback_data="comment")],
+        [InlineKeyboardButton("🔔 Subscribe Channel (0.10₽)", callback_data="subscribe")],
+        [InlineKeyboardButton("⏱ Watch 45s (0.10₽)", callback_data="watch")],
+        [InlineKeyboardButton("📺 Watch 3min (1.00₽)", callback_data="watch_3min")],
         [InlineKeyboardButton("💰 Balance", callback_data="balance")],
         [InlineKeyboardButton("💸 Withdraw", callback_data="withdraw")],
         [InlineKeyboardButton("📞 Contact", callback_data="contact")],
@@ -184,7 +186,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     try:
                         await context.bot.send_message(
                             chat_id=int(ref),
-                            text=f"🎉 You earned {BONUS_REFERRAL} rub referral bonus from @{username}!"
+                            text=f"🎉 You earned {BONUS_REFERRAL}{CURRENCY} referral bonus from @{username}!"
                         )
                     except:
                         pass
@@ -198,19 +200,27 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup = InlineKeyboardMarkup(keyboard)
         
         await update.message.reply_text(
-            f"👋 Welcome {name}!\n\n"
-            f"💰 Your Balance: {users[uid_str]['balance']:.2f} rub\n"
-            f"✅ Tasks Completed Today: {len(users[uid_str]['completed_tasks'])}/{DAILY_LIMIT}\n\n"
-            f"📋 Available Tasks:\n"
-            f"• Visit Website (25 seconds) - 0.05 rub\n"
-            f"• Like Video (10 seconds) - 0.02 rub\n"
-            f"• Comment Video (10 seconds) - 0.02 rub\n"
-            f"• Subscribe Channel (10 seconds) - 0.05 rub\n"
-            f"• Watch 3 Min Video (180 seconds) - 0.25 rub\n"
-            f"• Watch Live Stream (600 seconds) - 3.00 rub\n\n"
-            f"⚠️ You MUST complete the full waiting time to receive rewards!\n"
-            f"🔗 Your referral link: https://t.me/{context.bot.username}?start={uid}",
-            reply_markup=reply_markup
+            f"🎉 **Welcome to BitcoRise Earning Bot!** 🎉\n\n"
+            f"👋 Hello {name}!\n\n"
+            f"💰 Your Balance: **{users[uid_str]['balance']:.2f}{CURRENCY}**\n"
+            f"✅ Tasks Completed Today: **{len(users[uid_str]['completed_tasks'])}/{DAILY_LIMIT}**\n\n"
+            f"📋 **Available Tasks:**\n"
+            f"• 📰 Visit Article (25s) - 0.10{CURRENCY}\n"
+            f"• 👍 Like Video (10s) - 0.03{CURRENCY}\n"
+            f"• 💬 Comment Video (10s) - 0.05{CURRENCY}\n"
+            f"• 🔔 Subscribe Channel (10s) - 0.10{CURRENCY}\n"
+            f"• ⏱ Watch 45 sec - 0.10{CURRENCY}\n"
+            f"• 📺 Watch 3 minutes - 1.00{CURRENCY}\n\n"
+            f"⚠️ **IMPORTANT:** You MUST complete the full waiting time to receive rewards!\n"
+            f"📸 Take screenshots of completed tasks for verification!\n\n"
+            f"🔗 **Your referral link:**\n"
+            f"`https://t.me/BitcoRiseBot?start={uid}`\n\n"
+            f"💸 **Minimum Withdrawals:**\n"
+            f"• FaucetPay: {MIN_WITHDRAW['faucetpay']}{CURRENCY} or 1 BTC Satoshi\n"
+            f"• Payeer: {MIN_WITHDRAW['payeer']}{CURRENCY}\n\n"
+            f"📢 Join our channel for daily tasks: @bitcorise",
+            reply_markup=reply_markup,
+            parse_mode='Markdown'
         )
     except Exception as e:
         logger.error(f"Error in start command: {e}")
@@ -242,19 +252,21 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             # Check daily limit
             if len(users[uid_str]["completed_tasks"]) >= DAILY_LIMIT:
                 await query.edit_message_text(
-                    f"❌ Daily limit reached!\n\n"
+                    f"❌ **Daily limit reached!**\n\n"
                     f"You can complete {DAILY_LIMIT} tasks per day.\n"
                     f"Come back tomorrow at 00:00 UTC!",
-                    reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back to Menu", callback_data="back_to_menu")]])
+                    reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back to Menu", callback_data="back_to_menu")]]),
+                    parse_mode='Markdown'
                 )
                 return
                 
             # Check if task already completed today
             if data in users[uid_str]["completed_tasks"]:
                 await query.edit_message_text(
-                    "❌ You already completed this task today!\n\n"
+                    "❌ **You already completed this task today!**\n\n"
                     "Try other tasks or come back tomorrow.",
-                    reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back to Menu", callback_data="back_to_menu")]])
+                    reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back to Menu", callback_data="back_to_menu")]]),
+                    parse_mode='Markdown'
                 )
                 return
             
@@ -271,17 +283,49 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             
             task_time_formatted = format_time(task['wait'])
             
+            instructions = ""
+            if data == "visit":
+                instructions = (
+                    f"1️⃣ Click the article link above\n"
+                    f"2️⃣ Read the article for {task_time_formatted}\n"
+                    f"3️⃣ **IMPORTANT:** Click on any ad placed on header\n"
+                    f"4️⃣ Take screenshot for task approval\n"
+                    f"5️⃣ Wait for the FULL {task_time_formatted}\n"
+                    f"6️⃣ Click 'I Completed the Task'"
+                )
+            elif data == "comment":
+                instructions = (
+                    f"1️⃣ Click the video link above\n"
+                    f"2️⃣ Leave a meaningful comment on the video\n"
+                    f"3️⃣ Take screenshot of your comment\n"
+                    f"4️⃣ Wait for {task_time_formatted}\n"
+                    f"5️⃣ Click 'I Completed the Task'"
+                )
+            elif data == "subscribe":
+                instructions = (
+                    f"1️⃣ Click the channel link above\n"
+                    f"2️⃣ Subscribe to the YouTube channel\n"
+                    f"3️⃣ Take screenshot of subscription\n"
+                    f"4️⃣ Wait for {task_time_formatted}\n"
+                    f"5️⃣ Click 'I Completed the Task'"
+                )
+            else:
+                instructions = (
+                    f"1️⃣ Click the link above\n"
+                    f"2️⃣ Complete the task as described\n"
+                    f"3️⃣ Take screenshot for verification\n"
+                    f"4️⃣ Wait for the FULL {task_time_formatted}\n"
+                    f"5️⃣ Click 'I Completed the Task'"
+                )
+            
             await query.edit_message_text(
                 f"📋 **{task['title']}**\n\n"
-                f"💰 Reward: **{task['reward']} rub**\n"
+                f"💰 Reward: **{task['reward']}{CURRENCY}**\n"
                 f"⏱ Required Time: **{task_time_formatted}**\n"
                 f"🌐 Link: {task['link']}\n\n"
                 f"📋 **INSTRUCTIONS:**\n"
-                f"1️⃣ Click the link above\n"
-                f"2️⃣ Complete the task as described\n"
-                f"3️⃣ Wait for the FULL {task_time_formatted}\n"
-                f"4️⃣ Click 'I Completed the Task'\n\n"
-                f"⚠️ **WARNING:** You must wait the complete time!\n"
+                f"{instructions}\n\n"
+                f"⚠️ **WARNING:** Screenshots are required for verification!\n"
                 f"⏰ Timer started: {datetime.datetime.now().strftime('%H:%M:%S')}",
                 reply_markup=reply_markup,
                 disable_web_page_preview=True,
@@ -328,16 +372,17 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await query.edit_message_text(
                 f"🎉 **TASK COMPLETED!**\n\n"
                 f"✅ {task['title']}\n"
-                f"💰 Earned: **+{task['reward']} rub**\n\n"
-                f"💳 Your Balance: **{users[uid_str]['balance']:.2f} rub**\n"
+                f"💰 Earned: **+{task['reward']}{CURRENCY}**\n\n"
+                f"💳 Your Balance: **{users[uid_str]['balance']:.2f}{CURRENCY}**\n"
                 f"📊 Tasks Today: **{len(users[uid_str]['completed_tasks'])}/{DAILY_LIMIT}**\n"
                 f"🕐 Completed at: {datetime.datetime.now().strftime('%H:%M:%S')}\n\n"
+                f"📸 **Remember:** Share screenshots in @bitcorise channel for payout verification!\n\n"
                 f"Choose another task:",
                 reply_markup=reply_markup,
                 parse_mode='Markdown'
             )
             
-            logger.info(f"User {uid} completed task {task_key} and earned {task['reward']} rub")
+            logger.info(f"User {uid} completed task {task_key} and earned {task['reward']}{CURRENCY}")
         
         elif data == "balance":
             bal = users[uid_str]["balance"]
@@ -350,14 +395,14 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             
             await query.edit_message_text(
                 f"💰 **YOUR WALLET**\n\n"
-                f"💳 Balance: **{bal:.2f} rub**\n"
+                f"💳 Balance: **{bal:.2f}{CURRENCY}**\n"
                 f"✅ Tasks Today: **{completed_count}/{DAILY_LIMIT}**\n"
                 f"📅 Member Since: {users[uid_str].get('join_date', 'Unknown')[:10]}\n\n"
                 f"🔗 **Your Referral Link:**\n"
-                f"`https://t.me/{context.bot.username}?start={uid}`\n\n"
+                f"`https://t.me/BitcoRiseBot?start={uid}`\n\n"
                 f"💸 **Minimum Withdrawals:**\n"
-                f"• Payeer: {MIN_WITHDRAW['payeer']} rub\n"
-                f"• FaucetPay: {MIN_WITHDRAW['faucetpay']} rub",
+                f"• FaucetPay: {MIN_WITHDRAW['faucetpay']}{CURRENCY} or 1 BTC Satoshi\n"
+                f"• Payeer: {MIN_WITHDRAW['payeer']}{CURRENCY}",
                 reply_markup=reply_markup,
                 parse_mode='Markdown'
             )
@@ -374,11 +419,13 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"`method account_number amount`\n\n"
                 f"**Examples:**\n"
                 f"• `payeer P12345678 5`\n"
-                f"• `faucetpay your@email.com 100`\n\n"
+                f"• `faucetpay your@email.com 0.03`\n\n"
                 f"**Minimum amounts:**\n"
-                f"• Payeer: {MIN_WITHDRAW['payeer']} rub\n"
-                f"• FaucetPay: {MIN_WITHDRAW['faucetpay']} rub\n\n"
-                f"💳 Your balance: **{users[uid_str]['balance']:.2f} rub**\n\n"
+                f"• FaucetPay: {MIN_WITHDRAW['faucetpay']}{CURRENCY} or 1 BTC Satoshi\n"
+                f"• Payeer: {MIN_WITHDRAW['payeer']}{CURRENCY}\n\n"
+                f"💳 Your balance: **{users[uid_str]['balance']:.2f}{CURRENCY}**\n\n"
+                f"⚠️ **IMPORTANT:** Screenshots of completed tasks are required for payout!\n"
+                f"📢 Share screenshots in @bitcorise channel\n"
                 f"⏰ Processing time: 24 hours",
                 parse_mode='Markdown',
                 reply_markup=reply_markup
@@ -392,14 +439,15 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             
             await query.edit_message_text(
                 f"📞 **CONTACT SUPPORT**\n\n"
-                f"📧 Email: farawayme90@gmail.com\n"
-                f"👨‍💼 Admin: @{ADMIN_USERNAME}\n\n"
+                f"👨‍💼 Admin: @{ADMIN_USERNAME}\n"
+                f"📢 Channel: @bitcorise\n\n"
                 f"**For help with:**\n"
                 f"• Withdrawals\n"
                 f"• Technical issues\n"
                 f"• Account problems\n"
-                f"• General questions\n\n"
-                f"💬 We respond within 24 hours!",
+                f"• Task verification\n\n"
+                f"💬 We respond within 24 hours!\n"
+                f"📸 Don't forget to share task screenshots in our channel!",
                 reply_markup=reply_markup,
                 parse_mode='Markdown'
             )
@@ -408,9 +456,11 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             keyboard = get_main_keyboard()
             reply_markup = InlineKeyboardMarkup(keyboard)
             await query.edit_message_text(
-                f"🏠 **MAIN MENU**\n\n"
-                f"💰 Balance: **{users[uid_str]['balance']:.2f} rub**\n"
+                f"🏠 **BITCORISE EARNING BOT**\n\n"
+                f"💰 Balance: **{users[uid_str]['balance']:.2f}{CURRENCY}**\n"
                 f"✅ Tasks Today: **{len(users[uid_str]['completed_tasks'])}/{DAILY_LIMIT}**\n\n"
+                f"📢 Join @bitcorise for daily updates!\n"
+                f"📸 Share task screenshots for verification!\n\n"
                 f"Choose an option:",
                 reply_markup=reply_markup,
                 parse_mode='Markdown'
@@ -452,11 +502,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 return
                 
             if amount < MIN_WITHDRAW[method]:
-                await update.message.reply_text(f"❌ Amount below minimum. Minimum for {method}: {MIN_WITHDRAW[method]} rub")
+                await update.message.reply_text(f"❌ Amount below minimum. Minimum for {method}: {MIN_WITHDRAW[method]}{CURRENCY}")
                 return
             
             if users[uid_str]["balance"] < amount:
-                await update.message.reply_text(f"❌ Insufficient balance. Your balance: {users[uid_str]['balance']:.2f} rub")
+                await update.message.reply_text(f"❌ Insufficient balance. Your balance: {users[uid_str]['balance']:.2f}{CURRENCY}")
                 return
             
             # Process withdrawal
@@ -475,12 +525,14 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             
             await update.message.reply_text(
                 f"✅ **WITHDRAWAL SUBMITTED!**\n\n"
-                f"💰 Amount: **{amount} rub**\n"
+                f"💰 Amount: **{amount}{CURRENCY}**\n"
                 f"🏦 Method: **{method.upper()}**\n"
                 f"📧 Account: **{account}**\n"
                 f"🕐 Time: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
+                f"⚠️ **IMPORTANT:** Screenshots of completed tasks are required!\n"
+                f"📢 Share screenshots in @bitcorise channel for verification\n"
                 f"⏰ Processing time: **24 hours**\n"
-                f"💳 Remaining balance: **{users[uid_str]['balance']:.2f} rub**",
+                f"💳 Remaining balance: **{users[uid_str]['balance']:.2f}{CURRENCY}**",
                 parse_mode='Markdown'
             )
             
@@ -489,12 +541,12 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 admin_msg = (
                     f"📤 **NEW WITHDRAWAL REQUEST**\n\n"
                     f"👤 User: @{users[uid_str]['username']} (ID: {uid})\n"
-                    f"💰 Amount: {amount} rub\n"
+                    f"💰 Amount: {amount}{CURRENCY}\n"
                     f"🏦 Method: {method.upper()}\n"
                     f"📧 Account: {account}\n"
                     f"🕐 Time: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
                 )
-                await context.bot.send_message(chat_id=ADMIN_USERNAME.replace('@', ''), text=admin_msg, parse_mode='Markdown')
+                await context.bot.send_message(chat_id=ADMIN_ID, text=admin_msg, parse_mode='Markdown')
             except Exception as e:
                 logger.error(f"Failed to notify admin: {e}")
                 
@@ -519,9 +571,10 @@ async def balance_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
         bal = users[uid_str]["balance"]
         completed_count = len(users[uid_str]["completed_tasks"])
         await update.message.reply_text(
-            f"💰 Balance: **{bal:.2f} rub**\n"
+            f"💰 Balance: **{bal:.2f}{CURRENCY}**\n"
             f"✅ Tasks Today: **{completed_count}/{DAILY_LIMIT}**\n"
-            f"🔗 Referral Link: `https://t.me/{context.bot.username}?start={uid}`",
+            f"📢 Channel: @bitcorise\n"
+            f"🔗 Referral Link: `https://t.me/BitcoRiseBot?start={uid}`",
             parse_mode='Markdown'
         )
     except Exception as e:
@@ -531,7 +584,7 @@ async def balance_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # === ADMIN COMMANDS ===
 async def admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
-        if update.effective_user.username != ADMIN_USERNAME.replace('@', ''):
+        if update.effective_user.id != ADMIN_ID:
             return
         
         if not withdrawals:
@@ -546,7 +599,7 @@ async def admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
         msg = "📤 **PENDING WITHDRAWALS:**\n\n"
         for i, w in enumerate(pending, 1):
             msg += f"{i}. @{w['username']} (ID: {w['uid']})\n"
-            msg += f"   💰 {w['amount']} rub via {w['method'].upper()}\n"
+            msg += f"   💰 {w['amount']}{CURRENCY} via {w['method'].upper()}\n"
             msg += f"   📧 {w['account']}\n"
             msg += f"   ⏰ {w['timestamp'][:19]}\n\n"
         
@@ -556,7 +609,7 @@ async def admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
-        if update.effective_user.username != ADMIN_USERNAME.replace('@', ''):
+        if update.effective_user.id != ADMIN_ID:
             return
             
         total_users = len(users)
@@ -568,10 +621,10 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(
             f"📊 **BOT STATISTICS:**\n\n"
             f"👥 Total Users: **{total_users}**\n"
-            f"💰 Total Balance: **{total_balance:.2f} rub**\n"
+            f"💰 Total Balance: **{total_balance:.2f}{CURRENCY}**\n"
             f"📈 Active Today: **{active_today}**\n"
             f"💸 Pending Withdrawals: **{pending_withdrawals}**\n"
-            f"🕐 Bot Uptime: Online\n"
+            f"🕐 Bot Status: Online\n"
             f"📅 Date: {datetime.date.today()}",
             parse_mode='Markdown'
         )
@@ -603,8 +656,8 @@ def main():
         # Add error handler
         application.add_error_handler(error_handler)
         
-        logger.info("🤖 Bot is starting...")
-        print("🤖 Bot is starting...")
+        logger.info("🤖 BitcoRise Bot is starting...")
+        print("🤖 BitcoRise Bot is starting...")
         
         # Run the bot
         application.run_polling(

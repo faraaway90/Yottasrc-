@@ -1,49 +1,53 @@
 
 {
-  "bot_token": "YOUR_BOT_TOKEN_HERE",
-  "admin": "your_admin_username",
+  "bot_token": "7570225245:AAHZPelcxGlY0vp_YpnHN3w1EzPi0OD7i2s",
+  "admin_id": 7851407506,
+  "admin": "HooriJannat",
+  "payout_time": "23:00",
   "min_withdraw": {
     "payeer": 5,
-    "faucetpay": 10
+    "faucetpay": 0.03
   },
+  "daily_limit": 100,
+  "referral_bonus": 5,
+  "currency": "₽",
+  "payout_methods": ["FaucetPay", "Payeer", "USDT"],
   "tasks": {
     "visit": {
-      "title": "Visit Website",
-      "reward": 0.05,
+      "title": "📰 Visit Article",
+      "reward": 0.10,
       "wait": 25,
-      "link": "https://example.com"
+      "link": "https://www.investflow.online/2025/01/maximizing-profits-with-crypto.html?m=1"
     },
     "like": {
-      "title": "Like Video",
-      "reward": 0.02,
+      "title": "👍 Like Video",
+      "reward": 0.03,
       "wait": 10,
-      "link": "https://youtube.com/watch?v=example"
+      "link": "https://youtu.be/B8GXgWWYVfI?si=TVGG4GmOZqg3SJ65"
     },
     "comment": {
-      "title": "Comment on Video",
-      "reward": 0.02,
-      "wait": 10,
-      "link": "https://youtube.com/watch?v=example"
-    },
-    "subscribe": {
-      "title": "Subscribe Channel",
+      "title": "💬 Comment on Video",
       "reward": 0.05,
       "wait": 10,
-      "link": "https://youtube.com/c/example"
+      "link": "https://youtu.be/B8GXgWWYVfI?si=TVGG4GmOZqg3SJ65"
+    },
+    "subscribe": {
+      "title": "🔔 Subscribe Channel",
+      "reward": 0.10,
+      "wait": 10,
+      "link": "https://www.youtube.com/@mindrooh"
     },
     "watch": {
-      "title": "Watch 3 Min Video",
-      "reward": 0.25,
-      "wait": 180,
-      "link": "https://youtube.com/watch?v=example"
+      "title": "⏱ Watch Video (45 sec)",
+      "reward": 0.10,
+      "wait": 45,
+      "link": "https://youtu.be/B8GXgWWYVfI?si=TVGG4GmOZqg3SJ65"
     },
-    "live": {
-      "title": "Watch Live Stream",
-      "reward": 3.00,
-      "wait": 600,
-      "link": "https://youtube.com/watch?v=example"
+    "watch_3min": {
+      "title": "📺 Watch Video (3 minutes)",
+      "reward": 1.0,
+      "wait": 180,
+      "link": "https://youtu.be/B8GXgWWYVfI?si=TVGG4GmOZqg3SJ65"
     }
-  },
-  "daily_limit": 10,
-  "referral_bonus": 0.50
+  }
 }

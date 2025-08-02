@@ -107,12 +107,12 @@ def reset_daily_tasks():
 def get_main_keyboard():
     """Get the main menu keyboard"""
     return [
-        [InlineKeyboardButton("📰 Visit Article (0.10₽)", callback_data="visit")],
-        [InlineKeyboardButton("👍 Like Video (0.03₽)", callback_data="like")],
-        [InlineKeyboardButton("💬 Comment on Video (0.05₽)", callback_data="comment")],
-        [InlineKeyboardButton("🔔 Subscribe Channel (0.10₽)", callback_data="subscribe")],
-        [InlineKeyboardButton("⏱ Watch 45s (0.10₽)", callback_data="watch")],
-        [InlineKeyboardButton("📺 Watch 3min (1.00₽)", callback_data="watch_3min")],
+        [InlineKeyboardButton("📰 Visit Article (0.05₽)", callback_data="visit")],
+        [InlineKeyboardButton("👍 Like Video (0.02₽)", callback_data="like")],
+        [InlineKeyboardButton("💬 Comment on Video (0.02₽)", callback_data="comment")],
+        [InlineKeyboardButton("🔔 Subscribe Channel (0.05₽)", callback_data="subscribe")],
+        [InlineKeyboardButton("⏱ Watch 45s (0.03₽)", callback_data="watch")],
+        [InlineKeyboardButton("📺 Watch 3min (0.25₽)", callback_data="watch_3min")],
         [InlineKeyboardButton("💰 Balance", callback_data="balance")],
         [InlineKeyboardButton("💸 Withdraw", callback_data="withdraw")],
         [InlineKeyboardButton("📞 Contact", callback_data="contact")],
@@ -216,12 +216,12 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"💰 Your Balance: **{users[uid_str]['balance']:.2f}{CURRENCY}**\n"
             f"✅ Tasks Completed Today: **{len(users[uid_str]['completed_tasks'])}/{DAILY_LIMIT}**\n\n"
             f"📋 **Available Tasks:**\n"
-            f"• 📰 Visit Article (25s) - 0.10{CURRENCY}\n"
-            f"• 👍 Like Video (10s) - 0.03{CURRENCY}\n"
-            f"• 💬 Comment Video (10s) - 0.05{CURRENCY}\n"
-            f"• 🔔 Subscribe Channel (10s) - 0.10{CURRENCY}\n"
-            f"• ⏱ Watch 45 sec - 0.10{CURRENCY}\n"
-            f"• 📺 Watch 3 minutes - 1.00{CURRENCY}\n\n"
+            f"• 📰 Visit Article (25s) - 0.05{CURRENCY} or 3 BTC\n"
+            f"• 👍 Like Video (10s) - 0.02{CURRENCY} or 2 BTC\n"
+            f"• 💬 Comment Video (10s) - 0.02{CURRENCY} or 2 BTC\n"
+            f"• 🔔 Subscribe Channel (10s) - 0.05{CURRENCY} or 5 BTC\n"
+            f"• ⏱ Watch 45 sec - 0.03{CURRENCY} or 3 BTC\n"
+            f"• 📺 Watch 3 minutes - 0.25{CURRENCY} or 10 BTC\n\n"
             f"⚠️ **IMPORTANT:** You MUST complete the full waiting time to receive rewards!\n"
             f"📸 Take screenshots of completed tasks for verification!\n\n"
             f"🔗 **Your referral link:**\n"

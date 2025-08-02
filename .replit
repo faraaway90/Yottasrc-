@@ -2,3 +2,15 @@ modules = ["python-3.12"]
 
 [nix]
 channel = "stable-25_05"
+
+[workflows]
+runButton = "Run Bot"
+
+[[workflows.workflow]]
+name = "Run Bot"
+author = 45895141
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python bot.py"

@@ -32,7 +32,7 @@ except FileNotFoundError:
     logger.error("config.json not found!")
     exit(1)
 
-BOT_TOKEN = config["bot_token"]
+BOT_TOKEN = os.getenv("BOT_TOKEN") or config["bot_token"]
 ADMIN_USERNAME = config["admin"]
 MIN_WITHDRAW = config["min_withdraw"]
 TASKS = config["tasks"]
@@ -209,7 +209,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"• Watch 3 Min Video (180 seconds) - 0.25 rub\n"
             f"• Watch Live Stream (600 seconds) - 3.00 rub\n\n"
             f"⚠️ You MUST complete the full waiting time to receive rewards!\n"
-            f"🔗 Your referral link: https://t.me/your_bot?start={uid}",
+            f"🔗 Your referral link: https://t.me/{context.bot.username}?start={uid}",
             reply_markup=reply_markup
         )
     except Exception as e:
@@ -354,7 +354,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"✅ Tasks Today: **{completed_count}/{DAILY_LIMIT}**\n"
                 f"📅 Member Since: {users[uid_str].get('join_date', 'Unknown')[:10]}\n\n"
                 f"🔗 **Your Referral Link:**\n"
-                f"`https://t.me/your_bot?start={uid}`\n\n"
+                f"`https://t.me/{context.bot.username}?start={uid}`\n\n"
                 f"💸 **Minimum Withdrawals:**\n"
                 f"• Payeer: {MIN_WITHDRAW['payeer']} rub\n"
                 f"• FaucetPay: {MIN_WITHDRAW['faucetpay']} rub",
@@ -521,7 +521,7 @@ async def balance_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(
             f"💰 Balance: **{bal:.2f} rub**\n"
             f"✅ Tasks Today: **{completed_count}/{DAILY_LIMIT}**\n"
-            f"🔗 Referral Link: `https://t.me/your_bot?start={uid}`",
+            f"🔗 Referral Link: `https://t.me/{context.bot.username}?start={uid}`",
             parse_mode='Markdown'
         )
     except Exception as e:

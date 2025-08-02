@@ -1,0 +1,49 @@
+
+{
+  "bot_token": "YOUR_BOT_TOKEN_HERE",
+  "admin": "your_admin_username",
+  "min_withdraw": {
+    "payeer": 5,
+    "faucetpay": 10
+  },
+  "tasks": {
+    "visit": {
+      "title": "Visit Website",
+      "reward": 0.05,
+      "wait": 25,
+      "link": "https://example.com"
+    },
+    "like": {
+      "title": "Like Video",
+      "reward": 0.02,
+      "wait": 10,
+      "link": "https://youtube.com/watch?v=example"
+    },
+    "comment": {
+      "title": "Comment on Video",
+      "reward": 0.02,
+      "wait": 10,
+      "link": "https://youtube.com/watch?v=example"
+    },
+    "subscribe": {
+      "title": "Subscribe Channel",
+      "reward": 0.05,
+      "wait": 10,
+      "link": "https://youtube.com/c/example"
+    },
+    "watch": {
+      "title": "Watch 3 Min Video",
+      "reward": 0.25,
+      "wait": 180,
+      "link": "https://youtube.com/watch?v=example"
+    },
+    "live": {
+      "title": "Watch Live Stream",
+      "reward": 3.00,
+      "wait": 600,
+      "link": "https://youtube.com/watch?v=example"
+    }
+  },
+  "daily_limit": 10,
+  "referral_bonus": 0.50
+}

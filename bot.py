@@ -5,6 +5,7 @@ import logging
 import asyncio
 import time
 import os
+import random
 from flask import Flask
 from threading import Thread
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
@@ -158,6 +159,16 @@ def format_time(seconds):
     else:
         return f"{seconds//3600}h {(seconds%3600)//60}m"
 
+def get_random_task_link(task_key):
+    """Get a random link for the task"""
+    task = TASKS[task_key]
+    if "links" in task and task["links"]:
+        return random.choice(task["links"])
+    elif "link" in task:
+        return task["link"]
+    else:
+        return "#"
+
 # === BOT COMMANDS ===
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
@@ -216,7 +227,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"🔗 **Your referral link:**\n"
             f"`https://t.me/BitcoRiseBot?start={uid}`\n\n"
             f"💸 **Minimum Withdrawals:**\n"
-            f"• FaucetPay: {MIN_WITHDRAW['faucetpay']}{CURRENCY} or 1 BTC Satoshi\n"
+            f"• FaucetPay: {MIN_WITHDRAW['faucetpay']}{CURRENCY} or 50 BTC Satoshi\n"
             f"• Payeer: {MIN_WITHDRAW['payeer']}{CURRENCY}\n\n"
             f"📢 Join our channel for daily tasks: @bitcorise",
             reply_markup=reply_markup,
@@ -272,6 +283,9 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             
             task = TASKS[data]
             
+            # Get a random link for this task
+            task_link = get_random_task_link(data)
+            
             # Start the timer for this task
             start_task_timer(uid, data)
             
@@ -309,6 +323,14 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     f"4️⃣ Wait for {task_time_formatted}\n"
                     f"5️⃣ Click 'I Completed the Task'"
                 )
+            elif data == "watch" or data == "watch_3min":
+                instructions = (
+                    f"1️⃣ Click the video link above\n"
+                    f"2️⃣ Watch the video for {task_time_formatted}\n"
+                    f"3️⃣ Take screenshot showing you watched\n"
+                    f"4️⃣ Wait for the FULL {task_time_formatted}\n"
+                    f"5️⃣ Click 'I Completed the Task'"
+                )
             else:
                 instructions = (
                     f"1️⃣ Click the link above\n"
@@ -322,10 +344,11 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"📋 **{task['title']}**\n\n"
                 f"💰 Reward: **{task['reward']}{CURRENCY}**\n"
                 f"⏱ Required Time: **{task_time_formatted}**\n"
-                f"🌐 Link: {task['link']}\n\n"
+                f"🌐 Link: {task_link}\n\n"
                 f"📋 **INSTRUCTIONS:**\n"
                 f"{instructions}\n\n"
                 f"⚠️ **WARNING:** Screenshots are required for verification!\n"
+                f"📢 Share screenshots in @bitcorise channel\n"
                 f"⏰ Timer started: {datetime.datetime.now().strftime('%H:%M:%S')}",
                 reply_markup=reply_markup,
                 disable_web_page_preview=True,
@@ -401,7 +424,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"🔗 **Your Referral Link:**\n"
                 f"`https://t.me/BitcoRiseBot?start={uid}`\n\n"
                 f"💸 **Minimum Withdrawals:**\n"
-                f"• FaucetPay: {MIN_WITHDRAW['faucetpay']}{CURRENCY} or 1 BTC Satoshi\n"
+                f"• FaucetPay: {MIN_WITHDRAW['faucetpay']}{CURRENCY} or 50 BTC Satoshi\n"
                 f"• Payeer: {MIN_WITHDRAW['payeer']}{CURRENCY}",
                 reply_markup=reply_markup,
                 parse_mode='Markdown'
@@ -421,12 +444,13 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"• `payeer P12345678 5`\n"
                 f"• `faucetpay your@email.com 0.03`\n\n"
                 f"**Minimum amounts:**\n"
-                f"• FaucetPay: {MIN_WITHDRAW['faucetpay']}{CURRENCY} or 1 BTC Satoshi\n"
+                f"• FaucetPay: {MIN_WITHDRAW['faucetpay']}{CURRENCY} or 50 BTC Satoshi\n"
                 f"• Payeer: {MIN_WITHDRAW['payeer']}{CURRENCY}\n\n"
                 f"💳 Your balance: **{users[uid_str]['balance']:.2f}{CURRENCY}**\n\n"
                 f"⚠️ **IMPORTANT:** Screenshots of completed tasks are required for payout!\n"
-                f"📢 Share screenshots in @bitcorise channel\n"
-                f"⏰ Processing time: 24 hours",
+                f"📢 Share screenshots in @bitcorise channel: https://t.me/bitcorise\n"
+                f"⏰ Processing time: 24 hours\n"
+                f"📸 Task screenshots are MANDATORY for verification!",
                 parse_mode='Markdown',
                 reply_markup=reply_markup
             )

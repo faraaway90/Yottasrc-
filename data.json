@@ -1,0 +1,20 @@
+{
+  "users": {
+    "7851407506": {
+      "username": "",
+      "name": "Hoori",
+      "balance": 0,
+      "ref": null,
+      "completed_tasks": [],
+      "last_reset": "2025-08-02",
+      "join_date": "2025-08-02 19:28:43.132558"
+    }
+  },
+  "withdrawals": [],
+  "user_tasks": {
+    "7851407506": {
+      "visit": 1754162923.1329744,
+      "comment": 1754162940.8586473
+    }
+  }
+}

@@ -65,9 +65,6 @@ def run_flask():
     except Exception as e:
         logger.error(f"Flask error: {e}")
 
-# Start Flask in background
-Thread(target=run_flask, daemon=True).start()
-
 # === HELPER FUNCTIONS ===
 def save_data():
     """Save user data to prevent loss on restart"""
@@ -661,8 +658,9 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
     """Log the error and send a telegram message to notify the developer."""
     logger.error(f"Exception while handling an update: {context.error}")
 
-# === MAIN ===
-async def main():
+# === MAIN BOT FUNCTION ===
+def run_bot():
+    """Run the bot in the main thread"""
     try:
         # Load existing data
         load_data()
@@ -684,25 +682,20 @@ async def main():
         logger.info("🤖 BitcoRise Bot is starting...")
         print("🤖 BitcoRise Bot is starting...")
         
-        # Clean up any existing webhook before starting polling
-        try:
-            bot = application.bot
-            await bot.delete_webhook(drop_pending_updates=True)
-            logger.info("Webhook cleaned up successfully")
-        except Exception as e:
-            logger.warning(f"Could not clean webhook: {e}")
-        
-        # Run the bot with better error handling
+        # Run the bot with polling
         application.run_polling(
             drop_pending_updates=True,
-            allowed_updates=Update.ALL_TYPES,
-            close_loop=False,
-            stop_signals=None
+            allowed_updates=Update.ALL_TYPES
         )
         
     except Exception as e:
         logger.error(f"Fatal error: {e}")
         print(f"❌ Fatal error: {e}")
 
+# === MAIN EXECUTION ===
 if __name__ == '__main__':
-    asyncio.run(main())
+    # Start Flask in background thread
+    Thread(target=run_flask, daemon=True).start()
+    
+    # Run bot in main thread
+    run_bot()

@@ -34,6 +34,7 @@ except FileNotFoundError:
     exit(1)
 
 BOT_TOKEN = config["bot_token"]
+print(f"Using bot token: {BOT_TOKEN[:10]}...")  # Debug print
 ADMIN_USERNAME = config["admin"]
 ADMIN_ID = config["admin_id"]
 MIN_WITHDRAW = config["min_withdraw"]
@@ -661,7 +662,7 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
     logger.error(f"Exception while handling an update: {context.error}")
 
 # === MAIN ===
-def main():
+async def main():
     try:
         # Load existing data
         load_data()
@@ -683,10 +684,20 @@ def main():
         logger.info("🤖 BitcoRise Bot is starting...")
         print("🤖 BitcoRise Bot is starting...")
         
-        # Run the bot
+        # Clean up any existing webhook before starting polling
+        try:
+            bot = application.bot
+            await bot.delete_webhook(drop_pending_updates=True)
+            logger.info("Webhook cleaned up successfully")
+        except Exception as e:
+            logger.warning(f"Could not clean webhook: {e}")
+        
+        # Run the bot with better error handling
         application.run_polling(
             drop_pending_updates=True,
-            allowed_updates=Update.ALL_TYPES
+            allowed_updates=Update.ALL_TYPES,
+            close_loop=False,
+            stop_signals=None
         )
         
     except Exception as e:
@@ -694,4 +705,4 @@ def main():
         print(f"❌ Fatal error: {e}")
 
 if __name__ == '__main__':
-    main()
+    asyncio.run(main())

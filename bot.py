@@ -1,4 +1,3 @@
-
 import json
 import datetime
 import logging
@@ -6,8 +5,7 @@ import asyncio
 import time
 import os
 import random
-from flask import Flask
-from threading import Thread
+from flask import FFlaskfrom threading import Thread
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     Application,
@@ -21,8 +19,7 @@ from telegram.ext import (
 # Configure logging
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
-)
+    level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # === CONFIG LOADING ===
@@ -51,19 +48,27 @@ user_tasks = {}
 # === FLASK SETUP ===
 app = Flask(__name__)
 
+
 @app.route('/')
 def home():
     return "✅ Bot is alive and running!"
 
+
 @app.route('/health')
 def health():
-    return {"status": "ok", "users": len(users), "active_tasks": len(user_tasks)}
+    return {
+        "status": "ok",
+        "users": len(users),
+        "active_tasks": len(user_tasks)
+    }
+
 
 def run_flask():
     try:
         app.run(host='0.0.0.0', port=8080, debug=False, use_reloader=False)
     except Exception as e:
         logger.error(f"Flask error: {e}")
+
 
 # === HELPER FUNCTIONS ===
 def save_data():
@@ -79,6 +84,7 @@ def save_data():
     except Exception as e:
         logger.error(f"Error saving data: {e}")
 
+
 def load_data():
     """Load user data on startup"""
     global users, withdrawals, user_tasks
@@ -89,9 +95,12 @@ def load_data():
                 users = data.get("users", {})
                 withdrawals = data.get("withdrawals", [])
                 user_tasks = data.get("user_tasks", {})
-                logger.info(f"Loaded data: {len(users)} users, {len(withdrawals)} withdrawals")
+                logger.info(
+                    f"Loaded data: {len(users)} users, {len(withdrawals)} withdrawals"
+                )
     except Exception as e:
         logger.error(f"Error loading data: {e}")
+
 
 def reset_daily_tasks():
     """Reset daily tasks for all users"""
@@ -102,30 +111,45 @@ def reset_daily_tasks():
             users[uid]["last_reset"] = today
     save_data()
 
+
 def get_main_keyboard():
     """Get the main menu keyboard"""
     return [
-        [InlineKeyboardButton("📰 Visit Article (0.05₽)", callback_data="visit")],
+        [
+            InlineKeyboardButton("📰 Visit Article (0.05₽)",
+                                 callback_data="visit")
+        ],
         [InlineKeyboardButton("👍 Like Video (0.02₽)", callback_data="like")],
-        [InlineKeyboardButton("💬 Comment on Video (0.02₽)", callback_data="comment")],
-        [InlineKeyboardButton("🔔 Subscribe Channel (0.05₽)", callback_data="subscribe")],
+        [
+            InlineKeyboardButton("💬 Comment on Video (0.02₽)",
+                                 callback_data="comment")
+        ],
+        [
+            InlineKeyboardButton("🔔 Subscribe Channel (0.05₽)",
+                                 callback_data="subscribe")
+        ],
         [InlineKeyboardButton("⏱ Watch 45s (0.03₽)", callback_data="watch")],
-        [InlineKeyboardButton("📺 Watch 3min (0.25₽)", callback_data="watch_3min")],
+        [
+            InlineKeyboardButton("📺 Watch 3min (0.25₽)",
+                                 callback_data="watch_3min")
+        ],
         [InlineKeyboardButton("💰 Balance", callback_data="balance")],
         [InlineKeyboardButton("💸 Withdraw", callback_data="withdraw")],
         [InlineKeyboardButton("📞 Contact", callback_data="contact")],
     ]
 
+
 def is_task_completed(uid, task_key):
     """Check if user has completed the task timing requirement"""
     if str(uid) not in user_tasks or task_key not in user_tasks[str(uid)]:
         return False
-    
+
     task_start_time = user_tasks[str(uid)][task_key]
     required_wait = TASKS[task_key]["wait"]
     elapsed_time = time.time() - task_start_time
-    
+
     return elapsed_time >= required_wait
+
 
 def start_task_timer(uid, task_key):
     """Start the timer for a task"""
@@ -135,18 +159,20 @@ def start_task_timer(uid, task_key):
     user_tasks[uid_str][task_key] = time.time()
     save_data()
 
+
 def get_remaining_time(uid, task_key):
     """Get remaining wait time for a task"""
     uid_str = str(uid)
     if uid_str not in user_tasks or task_key not in user_tasks[uid_str]:
         return TASKS[task_key]["wait"]
-    
+
     task_start_time = user_tasks[uid_str][task_key]
     required_wait = TASKS[task_key]["wait"]
     elapsed_time = time.time() - task_start_time
     remaining = max(0, required_wait - elapsed_time)
-    
+
     return int(remaining)
+
 
 def format_time(seconds):
     """Format seconds into readable time"""
@@ -157,6 +183,7 @@ def format_time(seconds):
     else:
         return f"{seconds//3600}h {(seconds%3600)//60}m"
 
+
 def get_random_task_link(task_key):
     """Get a random link for the task"""
     task = TASKS[task_key]
@@ -166,6 +193,7 @@ def get_random_task_link(task_key):
         return task["link"]
     else:
         return "#"
+
 
 # === BOT COMMANDS ===
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -186,7 +214,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "last_reset": str(datetime.date.today()),
                 "join_date": str(datetime.datetime.now()),
             }
-            
+
             # Add referral bonus if applicable
             if ref and ref.isdigit():
                 ref_uid_str = ref
@@ -195,19 +223,20 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     try:
                         await context.bot.send_message(
                             chat_id=int(ref),
-                            text=f"🎉 You earned {BONUS_REFERRAL}{CURRENCY} referral bonus from @{username}!"
+                            text=
+                            f"🎉 You earned {BONUS_REFERRAL}{CURRENCY} referral bonus from @{username}!"
                         )
                     except:
                         pass
-            
+
             save_data()
             logger.info(f"New user registered: {uid} (@{username})")
 
         reset_daily_tasks()
-        
+
         keyboard = get_main_keyboard()
         reply_markup = InlineKeyboardMarkup(keyboard)
-        
+
         await update.message.reply_text(
             f"🎉 **Welcome to BitcoRise Earning Bot!** 🎉\n\n"
             f"👋 Hello {name}!\n\n"
@@ -229,11 +258,12 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"• Payeer: {MIN_WITHDRAW['payeer']}{CURRENCY}\n\n"
             f"📢 Join our channel for daily tasks: @bitcorise",
             reply_markup=reply_markup,
-            parse_mode='Markdown'
-        )
+            parse_mode='Markdown')
     except Exception as e:
         logger.error(f"Error in start command: {e}")
-        await update.message.reply_text("❌ An error occurred. Please try again later.")
+        await update.message.reply_text(
+            "❌ An error occurred. Please try again later.")
+
 
 async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
@@ -264,37 +294,45 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     f"❌ **Daily limit reached!**\n\n"
                     f"You can complete {DAILY_LIMIT} tasks per day.\n"
                     f"Come back tomorrow at 00:00 UTC!",
-                    reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back to Menu", callback_data="back_to_menu")]]),
-                    parse_mode='Markdown'
-                )
+                    reply_markup=InlineKeyboardMarkup([[
+                        InlineKeyboardButton("🔙 Back to Menu",
+                                             callback_data="back_to_menu")
+                    ]]),
+                    parse_mode='Markdown')
                 return
-                
+
             # Check if task already completed today
             if data in users[uid_str]["completed_tasks"]:
                 await query.edit_message_text(
                     "❌ **You already completed this task today!**\n\n"
                     "Try other tasks or come back tomorrow.",
-                    reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back to Menu", callback_data="back_to_menu")]]),
-                    parse_mode='Markdown'
-                )
+                    reply_markup=InlineKeyboardMarkup([[
+                        InlineKeyboardButton("🔙 Back to Menu",
+                                             callback_data="back_to_menu")
+                    ]]),
+                    parse_mode='Markdown')
                 return
-            
+
             task = TASKS[data]
-            
+
             # Get a random link for this task
             task_link = get_random_task_link(data)
-            
+
             # Start the timer for this task
             start_task_timer(uid, data)
-            
-            keyboard = [
-                [InlineKeyboardButton("✅ I Completed the Task", callback_data=f"verify_{data}")],
-                [InlineKeyboardButton("🔙 Back to Menu", callback_data="back_to_menu")]
-            ]
+
+            keyboard = [[
+                InlineKeyboardButton("✅ I Completed the Task",
+                                     callback_data=f"verify_{data}")
+            ],
+                        [
+                            InlineKeyboardButton("🔙 Back to Menu",
+                                                 callback_data="back_to_menu")
+                        ]]
             reply_markup = InlineKeyboardMarkup(keyboard)
-            
+
             task_time_formatted = format_time(task['wait'])
-            
+
             instructions = ""
             if data == "visit":
                 instructions = (
@@ -303,41 +341,35 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     f"3️⃣ **IMPORTANT:** Click on any ad placed on header\n"
                     f"4️⃣ Take screenshot for task approval\n"
                     f"5️⃣ Wait for the FULL {task_time_formatted}\n"
-                    f"6️⃣ Click 'I Completed the Task'"
-                )
+                    f"6️⃣ Click 'I Completed the Task'")
             elif data == "comment":
                 instructions = (
                     f"1️⃣ Click the video link above\n"
                     f"2️⃣ Leave a meaningful comment on the video\n"
                     f"3️⃣ Take screenshot of your comment\n"
                     f"4️⃣ Wait for {task_time_formatted}\n"
-                    f"5️⃣ Click 'I Completed the Task'"
-                )
+                    f"5️⃣ Click 'I Completed the Task'")
             elif data == "subscribe":
-                instructions = (
-                    f"1️⃣ Click the channel link above\n"
-                    f"2️⃣ Subscribe to the YouTube channel\n"
-                    f"3️⃣ Take screenshot of subscription\n"
-                    f"4️⃣ Wait for {task_time_formatted}\n"
-                    f"5️⃣ Click 'I Completed the Task'"
-                )
+                instructions = (f"1️⃣ Click the channel link above\n"
+                                f"2️⃣ Subscribe to the YouTube channel\n"
+                                f"3️⃣ Take screenshot of subscription\n"
+                                f"4️⃣ Wait for {task_time_formatted}\n"
+                                f"5️⃣ Click 'I Completed the Task'")
             elif data == "watch" or data == "watch_3min":
                 instructions = (
                     f"1️⃣ Click the video link above\n"
                     f"2️⃣ Watch the video for {task_time_formatted}\n"
                     f"3️⃣ Take screenshot showing you watched\n"
                     f"4️⃣ Wait for the FULL {task_time_formatted}\n"
-                    f"5️⃣ Click 'I Completed the Task'"
-                )
+                    f"5️⃣ Click 'I Completed the Task'")
             else:
                 instructions = (
                     f"1️⃣ Click the link above\n"
                     f"2️⃣ Complete the task as described\n"
                     f"3️⃣ Take screenshot for verification\n"
                     f"4️⃣ Wait for the FULL {task_time_formatted}\n"
-                    f"5️⃣ Click 'I Completed the Task'"
-                )
-            
+                    f"5️⃣ Click 'I Completed the Task'")
+
             await query.edit_message_text(
                 f"📋 **{task['title']}**\n\n"
                 f"💰 Reward: **{task['reward']}{CURRENCY}**\n"
@@ -350,18 +382,17 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"⏰ Timer started: {datetime.datetime.now().strftime('%H:%M:%S')}",
                 reply_markup=reply_markup,
                 disable_web_page_preview=True,
-                parse_mode='Markdown'
-            )
-        
+                parse_mode='Markdown')
+
         elif data.startswith("verify_"):
             task_key = data.replace("verify_", "")
             task = TASKS[task_key]
-            
+
             # Check if enough time has passed
             if not is_task_completed(uid, task_key):
                 remaining = get_remaining_time(uid, task_key)
                 remaining_formatted = format_time(remaining)
-                
+
                 await query.edit_message_text(
                     f"⏳ **PLEASE WAIT!**\n\n"
                     f"📋 Task: {task['title']}\n"
@@ -369,27 +400,32 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     f"🕐 Current time: {datetime.datetime.now().strftime('%H:%M:%S')}\n\n"
                     f"❌ You cannot claim the reward yet!\n"
                     f"Please wait for the timer to complete.",
-                    reply_markup=InlineKeyboardMarkup([
-                        [InlineKeyboardButton("🔄 Check Again", callback_data=f"verify_{task_key}")],
-                        [InlineKeyboardButton("🔙 Back to Menu", callback_data="back_to_menu")]
-                    ]),
-                    parse_mode='Markdown'
-                )
+                    reply_markup=InlineKeyboardMarkup(
+                        [[
+                            InlineKeyboardButton(
+                                "🔄 Check Again",
+                                callback_data=f"verify_{task_key}")
+                        ],
+                         [
+                             InlineKeyboardButton("🔙 Back to Menu",
+                                                  callback_data="back_to_menu")
+                         ]]),
+                    parse_mode='Markdown')
                 return
-            
+
             # Task completed successfully - award the user
             users[uid_str]["completed_tasks"].append(task_key)
             users[uid_str]["balance"] += task["reward"]
-            
+
             # Remove task from active tasks
             if uid_str in user_tasks and task_key in user_tasks[uid_str]:
                 del user_tasks[uid_str][task_key]
-            
+
             save_data()
-            
+
             keyboard = get_main_keyboard()
             reply_markup = InlineKeyboardMarkup(keyboard)
-            
+
             await query.edit_message_text(
                 f"🎉 **TASK COMPLETED!**\n\n"
                 f"✅ {task['title']}\n"
@@ -400,20 +436,22 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"📸 **Remember:** Share screenshots in @bitcorise channel for payout verification!\n\n"
                 f"Choose another task:",
                 reply_markup=reply_markup,
-                parse_mode='Markdown'
+                parse_mode='Markdown')
+
+            logger.info(
+                f"User {uid} completed task {task_key} and earned {task['reward']}{CURRENCY}"
             )
-            
-            logger.info(f"User {uid} completed task {task_key} and earned {task['reward']}{CURRENCY}")
-        
+
         elif data == "balance":
             bal = users[uid_str]["balance"]
             completed_count = len(users[uid_str]["completed_tasks"])
-            
-            keyboard = [
-                [InlineKeyboardButton("🔙 Back to Menu", callback_data="back_to_menu")]
-            ]
+
+            keyboard = [[
+                InlineKeyboardButton("🔙 Back to Menu",
+                                     callback_data="back_to_menu")
+            ]]
             reply_markup = InlineKeyboardMarkup(keyboard)
-            
+
             await query.edit_message_text(
                 f"💰 **YOUR WALLET**\n\n"
                 f"💳 Balance: **{bal:.2f}{CURRENCY}**\n"
@@ -425,15 +463,15 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"• FaucetPay: {MIN_WITHDRAW['faucetpay']}{CURRENCY} or 50 BTC Satoshi\n"
                 f"• Payeer: {MIN_WITHDRAW['payeer']}{CURRENCY}",
                 reply_markup=reply_markup,
-                parse_mode='Markdown'
-            )
-        
+                parse_mode='Markdown')
+
         elif data == "withdraw":
-            keyboard = [
-                [InlineKeyboardButton("🔙 Back to Menu", callback_data="back_to_menu")]
-            ]
+            keyboard = [[
+                InlineKeyboardButton("🔙 Back to Menu",
+                                     callback_data="back_to_menu")
+            ]]
             reply_markup = InlineKeyboardMarkup(keyboard)
-            
+
             await query.edit_message_text(
                 f"💸 **WITHDRAWAL REQUEST**\n\n"
                 f"Send your request in this format:\n"
@@ -450,15 +488,15 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"⏰ Processing time: 24 hours\n"
                 f"📸 Task screenshots are MANDATORY for verification!",
                 parse_mode='Markdown',
-                reply_markup=reply_markup
-            )
-        
+                reply_markup=reply_markup)
+
         elif data == "contact":
-            keyboard = [
-                [InlineKeyboardButton("🔙 Back to Menu", callback_data="back_to_menu")]
-            ]
+            keyboard = [[
+                InlineKeyboardButton("🔙 Back to Menu",
+                                     callback_data="back_to_menu")
+            ]]
             reply_markup = InlineKeyboardMarkup(keyboard)
-            
+
             await query.edit_message_text(
                 f"📞 **CONTACT SUPPORT**\n\n"
                 f"👨‍💼 Admin: @{ADMIN_USERNAME}\n"
@@ -471,9 +509,8 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"💬 We respond within 24 hours!\n"
                 f"📸 Don't forget to share task screenshots in our channel!",
                 reply_markup=reply_markup,
-                parse_mode='Markdown'
-            )
-        
+                parse_mode='Markdown')
+
         elif data == "back_to_menu":
             keyboard = get_main_keyboard()
             reply_markup = InlineKeyboardMarkup(keyboard)
@@ -485,24 +522,26 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"📸 Share task screenshots for verification!\n\n"
                 f"Choose an option:",
                 reply_markup=reply_markup,
-                parse_mode='Markdown'
-            )
-            
+                parse_mode='Markdown')
+
     except Exception as e:
         logger.error(f"Error in callback handler: {e}")
         try:
             await query.edit_message_text(
                 "❌ An error occurred. Please try again.",
-                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back to Menu", callback_data="back_to_menu")]])
-            )
+                reply_markup=InlineKeyboardMarkup([[
+                    InlineKeyboardButton("🔙 Back to Menu",
+                                         callback_data="back_to_menu")
+                ]]))
         except:
             pass
+
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         uid = update.effective_user.id
         msg = update.message.text.strip()
-        
+
         uid_str = str(uid)
         if uid_str not in users:
             await update.message.reply_text("❌ Please use /start first.")
@@ -512,25 +551,31 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if len(parts) == 3:
             method, account, amount = parts
             method = method.lower()
-            
+
             try:
                 amount = float(amount)
             except:
-                await update.message.reply_text("❌ Invalid amount. Please enter a valid number.")
+                await update.message.reply_text(
+                    "❌ Invalid amount. Please enter a valid number.")
                 return
-            
+
             if method not in MIN_WITHDRAW:
-                await update.message.reply_text("❌ Invalid method. Use 'payeer' or 'faucetpay'.")
+                await update.message.reply_text(
+                    "❌ Invalid method. Use 'payeer' or 'faucetpay'.")
                 return
-                
+
             if amount < MIN_WITHDRAW[method]:
-                await update.message.reply_text(f"❌ Amount below minimum. Minimum for {method}: {MIN_WITHDRAW[method]}{CURRENCY}")
+                await update.message.reply_text(
+                    f"❌ Amount below minimum. Minimum for {method}: {MIN_WITHDRAW[method]}{CURRENCY}"
+                )
                 return
-            
+
             if users[uid_str]["balance"] < amount:
-                await update.message.reply_text(f"❌ Insufficient balance. Your balance: {users[uid_str]['balance']:.2f}{CURRENCY}")
+                await update.message.reply_text(
+                    f"❌ Insufficient balance. Your balance: {users[uid_str]['balance']:.2f}{CURRENCY}"
+                )
                 return
-            
+
             # Process withdrawal
             users[uid_str]["balance"] -= amount
             withdrawal = {
@@ -544,7 +589,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             }
             withdrawals.append(withdrawal)
             save_data()
-            
+
             await update.message.reply_text(
                 f"✅ **WITHDRAWAL SUBMITTED!**\n\n"
                 f"💰 Amount: **{amount}{CURRENCY}**\n"
@@ -555,9 +600,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"📢 Share screenshots in @bitcorise channel for verification\n"
                 f"⏰ Processing time: **24 hours**\n"
                 f"💳 Remaining balance: **{users[uid_str]['balance']:.2f}{CURRENCY}**",
-                parse_mode='Markdown'
-            )
-            
+                parse_mode='Markdown')
+
             # Notify admin
             try:
                 admin_msg = (
@@ -568,18 +612,21 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     f"📧 Account: {account}\n"
                     f"🕐 Time: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
                 )
-                await context.bot.send_message(chat_id=ADMIN_ID, text=admin_msg, parse_mode='Markdown')
+                await context.bot.send_message(chat_id=ADMIN_ID,
+                                               text=admin_msg,
+                                               parse_mode='Markdown')
             except Exception as e:
                 logger.error(f"Failed to notify admin: {e}")
-                
+
         else:
             await update.message.reply_text(
                 "⚠️ Unknown command. Use the menu buttons or follow the withdrawal format:\n"
-                "`method account_number amount`"
-            )
+                "`method account_number amount`")
     except Exception as e:
         logger.error(f"Error in message handler: {e}")
-        await update.message.reply_text("❌ An error occurred. Please try again.")
+        await update.message.reply_text(
+            "❌ An error occurred. Please try again.")
+
 
 async def balance_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
@@ -588,7 +635,7 @@ async def balance_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if uid_str not in users:
             await update.message.reply_text("❌ Please use /start first.")
             return
-        
+
         reset_daily_tasks()
         bal = users[uid_str]["balance"]
         completed_count = len(users[uid_str]["completed_tasks"])
@@ -597,49 +644,57 @@ async def balance_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"✅ Tasks Today: **{completed_count}/{DAILY_LIMIT}**\n"
             f"📢 Channel: @bitcorise\n"
             f"🔗 Referral Link: `https://t.me/BitcoRiseBot?start={uid}`",
-            parse_mode='Markdown'
-        )
+            parse_mode='Markdown')
     except Exception as e:
         logger.error(f"Error in balance command: {e}")
-        await update.message.reply_text("❌ An error occurred. Please try again.")
+        await update.message.reply_text(
+            "❌ An error occurred. Please try again.")
+
 
 # === ADMIN COMMANDS ===
 async def admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         if update.effective_user.id != ADMIN_ID:
             return
-        
+
         if not withdrawals:
             await update.message.reply_text("📭 No pending withdrawals.")
             return
-        
-        pending = [w for w in withdrawals if w.get('status', 'pending') == 'pending']
+
+        pending = [
+            w for w in withdrawals if w.get('status', 'pending') == 'pending'
+        ]
         if not pending:
             await update.message.reply_text("📭 No pending withdrawals.")
             return
-        
+
         msg = "📤 **PENDING WITHDRAWALS:**\n\n"
         for i, w in enumerate(pending, 1):
             msg += f"{i}. @{w['username']} (ID: {w['uid']})\n"
             msg += f"   💰 {w['amount']}{CURRENCY} via {w['method'].upper()}\n"
             msg += f"   📧 {w['account']}\n"
             msg += f"   ⏰ {w['timestamp'][:19]}\n\n"
-        
+
         await update.message.reply_text(msg, parse_mode='Markdown')
     except Exception as e:
         logger.error(f"Error in admin command: {e}")
+
 
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         if update.effective_user.id != ADMIN_ID:
             return
-            
+
         total_users = len(users)
         total_balance = sum(user["balance"] for user in users.values())
         today = str(datetime.date.today())
-        active_today = sum(1 for user in users.values() if user["last_reset"] == today and user["completed_tasks"])
-        pending_withdrawals = len([w for w in withdrawals if w.get('status', 'pending') == 'pending'])
-        
+        active_today = sum(
+            1 for user in users.values()
+            if user["last_reset"] == today and user["completed_tasks"])
+        pending_withdrawals = len([
+            w for w in withdrawals if w.get('status', 'pending') == 'pending'
+        ])
+
         await update.message.reply_text(
             f"📊 **BOT STATISTICS:**\n\n"
             f"👥 Total Users: **{total_users}**\n"
@@ -648,15 +703,17 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"💸 Pending Withdrawals: **{pending_withdrawals}**\n"
             f"🕐 Bot Status: Online\n"
             f"📅 Date: {datetime.date.today()}",
-            parse_mode='Markdown'
-        )
+            parse_mode='Markdown')
     except Exception as e:
         logger.error(f"Error in stats command: {e}")
 
+
 # === ERROR HANDLER ===
-async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def error_handler(update: object,
+                        context: ContextTypes.DEFAULT_TYPE) -> None:
     """Log the error and send a telegram message to notify the developer."""
     logger.error(f"Exception while handling an update: {context.error}")
+
 
 # === MAIN BOT FUNCTION ===
 def run_bot():
@@ -664,38 +721,38 @@ def run_bot():
     try:
         # Load existing data
         load_data()
-        
+
         # Create application
         application = Application.builder().token(BOT_TOKEN).build()
-        
+
         # Add handlers
         application.add_handler(CommandHandler("start", start))
         application.add_handler(CommandHandler("balance", balance_cmd))
         application.add_handler(CommandHandler("admin", admin))
         application.add_handler(CommandHandler("stats", stats))
         application.add_handler(CallbackQueryHandler(handle_callback))
-        application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-        
+        application.add_handler(
+            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+
         # Add error handler
         application.add_error_handler(error_handler)
-        
+
         logger.info("🤖 BitcoRise Bot is starting...")
         print("🤖 BitcoRise Bot is starting...")
-        
+
         # Run the bot with polling
-        application.run_polling(
-            drop_pending_updates=True,
-            allowed_updates=Update.ALL_TYPES
-        )
-        
+        application.run_polling(drop_pending_updates=True,
+                                allowed_updates=Update.ALL_TYPES)
+
     except Exception as e:
         logger.error(f"Fatal error: {e}")
         print(f"❌ Fatal error: {e}")
+
 
 # === MAIN EXECUTION ===
 if __name__ == '__main__':
     # Start Flask in background thread
     Thread(target=run_flask, daemon=True).start()
-    
+
     # Run bot in main thread
     run_bot()

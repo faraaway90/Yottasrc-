@@ -3,17 +3,23 @@
   "admin": "HooriJannat",
   "admin_id": 7851407506,
   "payout_time": "23:00",
-  "min_withdraw": {
-    "faucetpay": 100,
-    "payeer": 2.0
-  },
+  "min_withdraw": 100,
   "daily_limit": 50,
   "referral_bonus": 0.10,
   "currency": "₽",
+  "payout_config": {
+    "faucetpay_min": 100,
+    "payeer_min": 2.0,
+    "processing_time": "24-48 hours",
+    "max_pending_per_user": 1,
+    "auto_reject_after_days": 7,
+    "admin_notifications": true
+  },
   "tasks": {
     "visit": {
       "name": "Visit Article",
-      "reward": 0.10,
+      "description": "Visit and read the article",
+      "reward": 0.05,
       "wait": 25,
       "links": [
         "https://www.investflow.online/2025/01/maximizing-profits-with-crypto.html?m=1"
@@ -21,6 +27,7 @@
     },
     "like": {
       "name": "Like Video",
+      "description": "Like the YouTube video and wait for timer",
       "reward": 0.03,
       "wait": 10,
       "links": [
@@ -43,7 +50,8 @@
     },
     "comment": {
       "name": "Comment on Video",
-      "reward": 0.05,
+      "description": "Leave a comment on the YouTube video",
+      "reward": 0.03,
       "wait": 10,
       "links": [
         "https://youtu.be/B8GXgWWYVfI?si=TVGG4GmOZqg3SJ65",
@@ -65,6 +73,7 @@
     },
     "subscribe": {
       "name": "Subscribe Channel",
+      "description": "Subscribe to the YouTube channel",
       "reward": 0.10,
       "wait": 10,
       "links": [
@@ -74,7 +83,8 @@
     },
     "watch": {
       "name": "Watch 45 seconds",
-      "reward": 0.10,
+      "description": "Watch the video for at least 45 seconds",
+      "reward": 0.07,
       "wait": 45,
       "links": [
         "https://youtu.be/B8GXgWWYVfI?si=TVGG4GmOZqg3SJ65",
@@ -96,7 +106,8 @@
     },
     "watch_3min": {
       "name": "Watch 3 minutes",
-      "reward": 1.0,
+      "description": "Watch the video for at least 3 minutes",
+      "reward": 0.50,
       "wait": 180,
       "links": [
         "https://youtu.be/B8GXgWWYVfI?si=TVGG4GmOZqg3SJ65",

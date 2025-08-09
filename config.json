@@ -3,7 +3,7 @@
   "admin": "HooriJannat",
   "admin_id": 7851407506,
   "payout_time": "23:00",
-  "min_withdraw": 100,
+  "min_withdraw": 2,
   "daily_limit": 50,
   "referral_bonus": 0.10,
   "currency": "₽",

@@ -1,0 +1,137 @@
+{
+  "bot_token": "",
+  "admin": "HooriJannat",
+  "admin_id": 7851407506,
+  "payout_time": "23:00",
+  "min_withdraw": 2,
+  "daily_limit": 50,
+  "referral_bonus": 0.10,
+  "currency": "₽",
+  "payout_config": {
+    "faucetpay": {
+      "name": "FaucetPay",
+      "emoji": "💰",
+      "format": "FP123456789",
+      "min_amount": 2
+    },
+    "payeer": {
+      "name": "Payeer",
+      "emoji": "💳",
+      "format": "P123456789",
+      "min_amount": 2.0
+    }
+  },
+  "tasks": {
+    "visit": {
+      "name": "Visit Article",
+      "description": "Visit and read the article",
+      "reward": 0.10,
+      "wait": 25,
+      "links": [
+        "https://www.investflow.online/2025/01/maximizing-profits-with-crypto.html?m=1"
+      ]
+    },
+    "like": {
+      "name": "Like Video",
+      "description": "Like the YouTube video and wait for timer",
+      "reward": 0.03,
+      "wait": 10,
+      "links": [
+        "https://youtu.be/B8GXgWWYVfI?si=TVGG4GmOZqg3SJ65",
+        "https://youtu.be/wfvGU_przdA?si=foryD0e8G99aNYYl",
+        "https://youtu.be/b_MLIM7m4Ug?si=6aczYuNZQ9iguGRv",
+        "https://youtu.be/kzDdoyBquHg?si=TWvR24IAFJYEDGvt",
+        "https://youtu.be/ZX85kcaD2BU?si=bDaMQDNnBbO9WW81",
+        "https://youtu.be/jVorFN171EM?si=UtBjow1ArUmfJzHy",
+        "https://youtube.com/shorts/tSQJ_4IZRyg?si=pwejkIfwDy0_hn7z",
+        "https://youtube.com/shorts/EaOouCCiiIE?si=ZvvnU4DMAyDOP7eM",
+        "https://youtube.com/shorts/Ifbd25dUA_I?si=3jbr5KXLPcQSEaM5",
+        "https://youtu.be/DynG0kBeGjE?si=jwiHOO5BYzMQmtgM",
+        "https://youtube.com/shorts/CTxvYno_erk?si=YAvWI22olgf1qDsr",
+        "https://youtube.com/shorts/oj12ypCytsU?si=2kDEEPO0tT3LIqP9",
+        "https://youtube.com/shorts/7B2rtr84fFE?si=ny6wpn7Dvy1sU7e2",
+        "https://youtube.com/shorts/pSVDQMRbkFs?si=aNc09GhCV91-TCVS",
+        "https://youtube.com/shorts/0n96Z67vAGA?si=M3w616Nb1icjCAsX"
+      ]
+    },
+    "comment": {
+      "name": "Comment on Video",
+      "description": "Leave a comment on the YouTube video",
+      "reward": 0.05,
+      "wait": 10,
+      "links": [
+        "https://youtu.be/B8GXgWWYVfI?si=TVGG4GmOZqg3SJ65",
+        "https://youtu.be/wfvGU_przdA?si=foryD0e8G99aNYYl",
+        "https://youtu.be/b_MLIM7m4Ug?si=6aczYuNZQ9iguGRv",
+        "https://youtu.be/kzDdoyBquHg?si=TWvR24IAFJYEDGvt",
+        "https://youtu.be/ZX85kcaD2BU?si=bDaMQDNnBbO9WW81",
+        "https://youtu.be/jVorFN171EM?si=UtBjow1ArUmfJzHy",
+        "https://youtube.com/shorts/tSQJ_4IZRyg?si=pwejkIfwDy0_hn7z",
+        "https://youtube.com/shorts/EaOouCCiiIE?si=ZvvnU4DMAyDOP7eM",
+        "https://youtube.com/shorts/Ifbd25dUA_I?si=3jbr5KXLPcQSEaM5",
+        "https://youtu.be/DynG0kBeGjE?si=jwiHOO5BYzMQmtgM",
+        "https://youtube.com/shorts/CTxvYno_erk?si=YAvWI22olgf1qDsr",
+        "https://youtube.com/shorts/oj12ypCytsU?si=2kDEEPO0tT3LIqP9",
+        "https://youtube.com/shorts/7B2rtr84fFE?si=ny6wpn7Dvy1sU7e2",
+        "https://youtube.com/shorts/pSVDQMRbkFs?si=aNc09GhCV91-TCVS",
+        "https://youtube.com/shorts/0n96Z67vAGA?si=M3w616Nb1icjCAsX"
+      ]
+    },
+    "subscribe": {
+      "name": "Subscribe Channel",
+      "description": "Subscribe to the YouTube channel",
+      "reward": 0.10,
+      "wait": 10,
+      "links": [
+        "https://www.youtube.com/@mindrooh",
+        "https://www.youtube.com/@Atlas_Unfoldedyt"
+      ]
+    },
+    "watch": {
+      "name": "Watch 45 seconds",
+      "description": "Watch the video for at least 45 seconds",
+      "reward": 0.10,
+      "wait": 45,
+      "links": [
+        "https://youtu.be/B8GXgWWYVfI?si=TVGG4GmOZqg3SJ65",
+        "https://youtu.be/wfvGU_przdA?si=foryD0e8G99aNYYl",
+        "https://youtu.be/b_MLIM7m4Ug?si=6aczYuNZQ9iguGRv",
+        "https://youtu.be/kzDdoyBquHg?si=TWvR24IAFJYEDGvt",
+        "https://youtu.be/ZX85kcaD2BU?si=bDaMQDNnBbO9WW81",
+        "https://youtu.be/jVorFN171EM?si=UtBjow1ArUmfJzHy",
+        "https://youtube.com/shorts/tSQJ_4IZRyg?si=pwejkIfwDy0_hn7z",
+        "https://youtube.com/shorts/EaOouCCiiIE?si=ZvvnU4DMAyDOP7eM",
+        "https://youtube.com/shorts/Ifbd25dUA_I?si=3jbr5KXLPcQSEaM5",
+        "https://youtu.be/DynG0kBeGjE?si=jwiHOO5BYzMQmtgM",
+        "https://youtube.com/shorts/CTxvYno_erk?si=YAvWI22olgf1qDsr",
+        "https://youtube.com/shorts/oj12ypCytsU?si=2kDEEPO0tT3LIqP9",
+        "https://youtube.com/shorts/7B2rtr84fFE?si=ny6wpn7Dvy1sU7e2",
+        "https://youtube.com/shorts/pSVDQMRbkFs?si=aNc09GhCV91-TCVS",
+        "https://youtube.com/shorts/0n96Z67vAGA?si=M3w616Nb1icjCAsX"
+      ]
+    },
+    "watch_3min": {
+      "name": "Watch 3 minutes",
+      "description": "Watch the video for at least 3 minutes",
+      "reward": 1.0,
+      "wait": 180,
+      "links": [
+        "https://youtu.be/B8GXgWWYVfI?si=TVGG4GmOZqg3SJ65",
+        "https://youtu.be/wfvGU_przdA?si=foryD0e8G99aNYYl",
+        "https://youtu.be/b_MLIM7m4Ug?si=6aczYuNZQ9iguGRv",
+        "https://youtu.be/kzDdoyBquHg?si=TWvR24IAFJYEDGvt",
+        "https://youtu.be/ZX85kcaD2BU?si=bDaMQDNnBbO9WW81",
+        "https://youtu.be/jVorFN171EM?si=UtBjow1ArUmfJzHy",
+        "https://youtube.com/shorts/tSQJ_4IZRyg?si=pwejkIfwDy0_hn7z",
+        "https://youtube.com/shorts/EaOouCCiiIE?si=ZvvnU4DMAyDOP7eM",
+        "https://youtube.com/shorts/Ifbd25dUA_I?si=3jbr5KXLPcQSEaM5",
+        "https://youtu.be/DynG0kBeGjE?si=jwiHOO5BYzMQmtgM",
+        "https://youtube.com/shorts/CTxvYno_erk?si=YAvWI22olgf1qDsr",
+        "https://youtube.com/shorts/oj12ypCytsU?si=2kDEEPO0tT3LIqP9",
+        "https://youtube.com/shorts/7B2rtr84fFE?si=ny6wpn7Dvy1sU7e2",
+        "https://youtube.com/shorts/pSVDQMRbkFs?si=aNc09GhCV91-TCVS",
+        "https://youtube.com/shorts/0n96Z67vAGA?si=M3w616Nb1icjCAsX"
+      ]
+    }
+  }
+}
